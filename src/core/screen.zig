@@ -280,6 +280,11 @@ pub const SubScreen = struct {
         }
     }
 
+    pub fn putStringAt(self: *SubScreen, x: u16, y: u16, s: []const u8) void {
+        self.moveCursor(x, y);
+        self.putString(s);
+    }
+
     pub fn setStyle(self: *SubScreen, s: Style) void {
         self.current_style = s;
     }

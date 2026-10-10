@@ -257,6 +257,12 @@ pub const ListView = list_view.ListView;
 /// Create a table
 pub const Table = table.Table;
 
+/// Table column definition
+pub const Column = table.Column;
+
+/// Table column width specification
+pub const ColumnWidth = table.ColumnWidth;
+
 /// Create a scroll view
 pub const ScrollView = scroll_view.ScrollView;
 

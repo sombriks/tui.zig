@@ -6,7 +6,7 @@ pub const ImgApp = struct {
     pub fn init() ImgApp {
         var data: [100]u8 = undefined;
         for (0..data.len) |i| {
-            data[i] = @as(u8, (i * 7) % 256);
+            data[i] = @as(u8, @intCast((i * 7) % 256));
         }
         return ImgApp{ .img = tui.Image.init(data[0..], 10, 10).withProtocol(.ascii) };
     }

@@ -22,14 +22,14 @@ pub const ScrollApp = struct {
     owned_lines: std.ArrayList([]const u8) = undefined,
 
     pub fn init() !ScrollApp {
-        var owned = try std.ArrayList([]const u8).init(std.heap.page_allocator);
+        var owned = std.ArrayList([]const u8).init(std.heap.page_allocator);
         // Populate some example lines
         for (0..100) |i| {
             const s = try std.fmt.allocPrint(std.heap.page_allocator, "Line {d}", .{i});
             try owned.append(s);
         }
-        const content = Content{ .lines = owned.items[0..owned.len] };
-        const sv = tui.ScrollView(Content).init(content).withContentSize(80, @as(u16, owned.len));
+        const content = Content{ .lines = owned.items };
+        const sv = tui.ScrollView(Content).init(content).withContentSize(80, @as(u16, @intCast(owned.items.len)));
         return ScrollApp{ .sv = sv, .owned_lines = owned };
     }
 

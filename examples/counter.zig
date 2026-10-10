@@ -8,9 +8,9 @@ pub const CounterApp = struct {
         var sub = ctx.getSubScreen();
         sub.clear();
         var buf: [64]u8 = undefined;
-        const written = std.fmt.bufPrint(&buf, "Counter: {d}", .{self.count}) catch 0;
+        const msg = std.fmt.bufPrint(&buf, "Counter: {d}", .{self.count}) catch "";
         sub.moveCursor(0, 0);
-        sub.putString(buf[0..written]);
+        sub.putString(msg);
 
         sub.moveCursor(0, 2);
         sub.putString("Press '+' to increment, '-' to decrement. Press Ctrl-C to quit.");

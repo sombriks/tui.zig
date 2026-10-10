@@ -62,6 +62,12 @@ pub const AppState = enum {
     stopped,
 };
 
+fn nanoTimestamp() i128 {
+    var ts: std.posix.timespec = undefined;
+    _ = std.posix.system.clock_gettime(std.posix.CLOCK.MONOTONIC, &ts);
+    return @as(i128, ts.sec) * std.time.ns_per_s + ts.nsec;
+}
+
 /// Main application struct
 pub const App = struct {
     allocator: std.mem.Allocator,
@@ -153,7 +159,7 @@ pub const App = struct {
     pub fn setRoot(self: *App, root_ptr: anytype) !void {
         const T = @TypeOf(root_ptr.*);
 
-        self.root = @ptrCast(root_ptr);
+        self.root = @constCast(@ptrCast(root_ptr));
 
         if (@hasDecl(T, "render")) {
             self.root_render_fn = @ptrCast(&struct {
@@ -196,7 +202,7 @@ pub const App = struct {
         defer self.teardown();
 
         self.state = .running;
-        self.start_time_ns = std.time.nanoTimestamp();
+        self.start_time_ns = nanoTimestamp();
         self.last_frame_ns = self.start_time_ns;
 
         // Main loop
@@ -235,7 +241,7 @@ pub const App = struct {
 
     /// Run a single frame
     fn runFrame(self: *App) !void {
-        const current_time = std.time.nanoTimestamp();
+        const current_time = nanoTimestamp();
         const delta_ns = current_time - self.last_frame_ns;
         const delta_ms: u32 = @intCast(@divTrunc(delta_ns, 1_000_000));
 
@@ -262,7 +268,7 @@ pub const App = struct {
 
         // Sleep to maintain target FPS
         const frame_time_ns = @divTrunc(@as(i128, 1_000_000_000), @as(i128, self.config.target_fps));
-        const elapsed_ns = std.time.nanoTimestamp() - current_time;
+        const elapsed_ns = nanoTimestamp() - current_time;
 
         if (elapsed_ns < frame_time_ns) {
             const sleep_ns: u64 = @intCast(frame_time_ns - elapsed_ns);
@@ -362,7 +368,7 @@ pub const App = struct {
                 .height = scr.height,
             },
             .focused_id = null,
-            .time_ns = @intCast(std.time.nanoTimestamp() - self.start_time_ns),
+            .time_ns = @intCast(nanoTimestamp() - self.start_time_ns),
         };
 
         // Render root widget
@@ -381,7 +387,7 @@ pub const App = struct {
 
     /// Get elapsed time since start
     pub fn getElapsedTime(self: *App) u64 {
-        const ns = std.time.nanoTimestamp() - self.start_time_ns;
+        const ns = nanoTimestamp() - self.start_time_ns;
         return @intCast(@divTrunc(ns, 1_000_000));
     }
 

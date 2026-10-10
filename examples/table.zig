@@ -4,13 +4,12 @@ const tui = @import("tui");
 const Row = struct { id: u32, name: []const u8, value: u32 };
 
 fn render_cell(row: Row, col: usize, buf: []u8) []const u8 {
-    const written = switch (col) {
-        0 => std.fmt.bufPrint(buf, "{d}", .{row.id}) catch 0,
-        1 => std.fmt.bufPrint(buf, "{s}", .{row.name}) catch 0,
-        2 => std.fmt.bufPrint(buf, "{d}", .{row.value}) catch 0,
-        else => 0,
+    return switch (col) {
+        0 => std.fmt.bufPrint(buf, "{d}", .{row.id}) catch "",
+        1 => std.fmt.bufPrint(buf, "{s}", .{row.name}) catch "",
+        2 => std.fmt.bufPrint(buf, "{d}", .{row.value}) catch "",
+        else => "",
     };
-    return buf[0..written];
 }
 
 pub const TableApp = struct {
@@ -39,15 +38,17 @@ pub const TableApp = struct {
     }
 
     pub fn handleEvent(self: *TableApp, event: tui.Event) tui.EventResult {
-        if (event == .key) {
-            const k = event.key;
-            if (k.key == .up) {
-                if (self.tbl.selected_row > 0) self.tbl.selectRow(self.tbl.selected_row - 1);
-                return .needs_redraw;
-            } else if (k.key == .down) {
-                if (self.tbl.selected_row + 1 < self.tbl.rows.len) self.tbl.selectRow(self.tbl.selected_row + 1);
-                return .needs_redraw;
-            }
+        switch (event) {
+            .key => |k| {
+                if (k.key == .up) {
+                    if (self.tbl.selected_row > 0) self.tbl.selectRow(self.tbl.selected_row - 1);
+                    return .needs_redraw;
+                } else if (k.key == .down) {
+                    if (self.tbl.selected_row + 1 < self.tbl.rows.len) self.tbl.selectRow(self.tbl.selected_row + 1);
+                    return .needs_redraw;
+                }
+            },
+            else => {},
         }
         return .ignored;
     }
